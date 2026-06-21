@@ -65,16 +65,16 @@
 | `volunteer_coordinator/prompt.py` | ✅ Built + tested | `VOLUNTEER_COORDINATOR_INSTRUCTION` |
 | `communication_hub/agent.py` | ✅ Built + tested | Import test passed |
 | `communication_hub/prompt.py` | ✅ Built + tested | `COMMUNICATION_HUB_INSTRUCTION` |
-| `orchestrator.py` | ✅ Built | Import-tested; end-to-end test blocked on GEMINI_API_KEY being set |
+| `orchestrator.py` | ✅ Built + ✅ End-to-end tested | End-to-end pipeline run captured in `docs/sample_pipeline_run.md` (timestamp fix verified in orchestration input). |
 
 ### MCP Servers (`mcp_servers/`)
 
 | File | Status |
 |---|---|
-| `geocoding_mcp/server.py` | ❌ Not yet built |
-| `weather_mcp/server.py` | ❌ Not yet built |
-| `supply_db_mcp/server.py` | ❌ Not yet built |
-| `shelter_api_mcp/server.py` | ❌ Not yet built |
+| `geocoding_mcp/server.py` | ✅ Built + tested | `uv run python -m mcp_servers.geocoding_mcp.server` passes with real Nominatim API |
+| `weather_mcp/server.py` | ✅ Built + tested | `uv run python -m mcp_servers.weather_mcp.server` passes with real OpenWeatherMap API |
+| `supply_db_mcp/server.py` | ✅ Built + tested | `uv run python -m mcp_servers.supply_db_mcp.server` passes — 12 shelters, reservation lifecycle works |
+| `shelter_api_mcp/server.py` | ✅ Built + tested | `uv run python -m mcp_servers.shelter_api_mcp.server` passes — 12 shelters, distance-sorted results |
 
 ### Security (`security/`)
 
@@ -82,8 +82,8 @@
 |---|---|
 | `pii_redactor.py` | ✅ Built + tested | `uv run python -m security.pii_redactor` passes |
 | `encryption.py` | ✅ Built + tested | `uv run python -m security.encryption` — 7/7 PASS |
-| `access_control.py` | ❌ Not yet built |
-| `audit_logger.py` | ❌ Not yet built |
+| `access_control.py` | ✅ Built + tested | `uv run python -m security.access_control` passes — RBAC matrix + require_role decorator |
+| `audit_logger.py` | ✅ Built + tested | `uv run python -m security.audit_logger` passes — append-only JSONL at state/audit.jsonl |
 
 ### Skills (`skills/`)
 
@@ -129,14 +129,17 @@ Per the build order, the foundation files come before more agents or MCP servers
 
 **Build next (in this order):**
 
-1. `security/pii_redactor.py` — PII redaction with regex NER, vault tokenisation (PID §7.1)
-2. `security/encryption.py` — Fernet field-level encryption (PID §7.2)
-3. `skills/geo_parser.py` — Location extraction + Haversine distance (PID §8.1)
-4. `skills/severity_scorer.py` — Multi-factor severity algorithm (PID §8.2)
-5. `mcp_servers/geocoding_mcp/server.py` — Geocoding via Nominatim (PID §6.2)
+1. ~~`security/pii_redactor.py`~~ ✅ built + tested
+2. ~~`security/encryption.py`~~ ✅ built + tested
+3. ~~`skills/geo_parser.py`~~ ✅ built + tested
+4. ~~`skills/severity_scorer.py`~~ ✅ built + tested
+5. ~~`mcp_servers/geocoding_mcp/server.py`~~ ✅ built + tested
+6. ~~`mcp_servers/weather_mcp/server.py`~~ ✅ built + tested (built out of wave order per user request)
+7. ~~`mcp_servers/supply_db_mcp/server.py`~~ ✅ built + tested
+8. ~~`mcp_servers/shelter_api_mcp/server.py`~~ ✅ built + tested
 
-> **Do not** jump to dashboard, orchestrator wiring, or MCP weather server until the
-> security and skills foundation is in place. Follow the wave order strictly.
+> **Do not** jump to dashboard or orchestrator wiring until the
+> remaining MCP servers are in place. Follow the wave order strictly.
 
 ---
 
@@ -172,12 +175,12 @@ safehaven/
 │   ├── volunteer_coordinator/ ✅ agent.py + prompt.py tested
 │   └── communication_hub/  ✅ agent.py + prompt.py tested
 ├── mcp_servers/
-│   ├── geocoding_mcp/      ❌ server.py missing
-│   ├── weather_mcp/        ❌ server.py missing
-│   ├── supply_db_mcp/      ❌ folder + server.py missing
-│   └── shelter_api_mcp/    ❌ folder + server.py missing
-├── security/               ❌ all 4 modules missing
-├── skills/                 ❌ folder + all 3 modules missing
+│   ├── geocoding_mcp/      ✅ server.py built
+│   ├── weather_mcp/        ✅ server.py built
+│   ├── supply_db_mcp/      ✅ server.py built
+│   └── shelter_api_mcp/    ✅ server.py built
+├── security/               ✅ all 4 modules built
+├── skills/                 ✅ all 3 modules built
 ├── dashboard/              ❌ mock_data.py + app.py missing
 └── state/                  ❌ folder missing (created at runtime)
 ```

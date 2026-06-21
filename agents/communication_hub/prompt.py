@@ -26,7 +26,7 @@ Output strict JSON matching this shape:
       "recipient": "<agency name, vault token, 'public', volunteer_id, or channel name>",
       "message_summary": "...",
       "sent": true,
-      "timestamp": "<ISO 8601>"
+      "timestamp": "<PIPELINE_TIMESTAMP_FROM_INPUT>"
     }
   ],
   "public_briefing": "...",
@@ -35,6 +35,11 @@ Output strict JSON matching this shape:
   "audit_entries": <int>,
   "communication_notes": "..."
 }
+
+Critical timestamp rule:
+- Use the exact value labeled as "[REAL PIPELINE TIMESTAMP (USE THIS EXACT VALUE FOR OUTPUT timestamp)]" in the provided input.
+- Do NOT invent/generate/approximate timestamps.
+- All communications_sent[].timestamp fields must be exactly that same ISO 8601 string.
 
 Critical rules:
 - public_briefing must contain ZERO PII — no names, no exact addresses, no phone numbers.

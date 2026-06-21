@@ -5,6 +5,7 @@ MCP server providing weather tools via the official `mcp` package.
 Exposes tools:
 - get_current_weather(lat: float, lon: float) -> dict
 - get_weather_forecast(lat: float, lon: float, hours: int) -> dict
+- get_severe_alerts(lat: float, lon: float) -> list
 
 Weather is fetched from OpenWeatherMap using OPENWEATHER_API_KEY from .env.
 If the API key is missing/empty, this module raises a clear error (no fake data).
@@ -132,14 +133,65 @@ def get_weather_forecast(lat: float, lon: float, hours: int = 24) -> dict:
     return _forecast(lat=lat, lon=lon, hours=hours)
 
 
+def _severe_alerts(lat: float, lon: float) -> List[Dict[str, Any]]:
+    api_key = _require_openweather_api_key()
+    # One Call API 3.0 includes alerts but requires a paid subscription.
+    # We try the endpoint; if it fails (401/403), return an empty list
+    # with a note so the caller knows alerts aren't available on this tier.
+    url = "https://api.openweathermap.org/data/3.0/onecall"
+    params = {
+        "lat": lat,
+        "lon": lon,
+        "appid": api_key,
+        "exclude": "current,minutely,hourly,daily",
+    }
+    try:
+        resp = requests.get(url, params=params, timeout=30)
+        resp.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        # One Call 3.0 requires a paid subscription; return empty with note.
+        if e.response is not None and e.response.status_code in (401, 403):
+            return [{"note": "Severe alerts require OpenWeatherMap One Call 3.0 subscription. "
+                            "Free tier does not include alerts endpoint."}]
+        raise
+    data = resp.json()
+    alerts = data.get("alerts") or []
+    clean_alerts = []
+    for alert in alerts:
+        clean_alerts.append({
+            "sender": alert.get("sender_name"),
+            "event": alert.get("event"),
+            "start": alert.get("start"),
+            "end": alert.get("end"),
+            "description": alert.get("description"),
+            "tags": alert.get("tags"),
+        })
+    return clean_alerts
+
+
+@app.tool()
+def get_severe_alerts(lat: float, lon: float) -> list:
+    """Get active severe weather alerts for the given latitude/longitude."""
+
+    return _severe_alerts(lat=lat, lon=lon)
+
+
 def _demo() -> None:
-    """Test script per PID: call get_current_weather for Tampa, FL."""
+    """Test script: call all three tools for Tampa, FL."""
 
     lat, lon = 27.9506, -82.4572
-    print(f"Requesting current weather for Tampa, FL: ({lat}, {lon})")
-    # Direct call (not via MCP) so this works in a simple `python -m ...` run.
+    print(f"Testing weather MCP tools for Tampa, FL: ({lat}, {lon})\n")
+
+    print("--- get_current_weather ---")
     result = _current_weather(lat=lat, lon=lon)
-    print("Current weather response:")
+    print(result)
+
+    print("\n--- get_weather_forecast (3 hours) ---")
+    result = _forecast(lat=lat, lon=lon, hours=3)
+    print(result)
+
+    print("\n--- get_severe_alerts ---")
+    result = _severe_alerts(lat=lat, lon=lon)
     print(result)
 
 

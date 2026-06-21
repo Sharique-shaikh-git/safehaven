@@ -19,6 +19,7 @@ import json
 import os
 import re
 import sys
+from datetime import datetime
 
 # Make sure the project root is on sys.path so `agents.*` resolves whether
 # this file is run directly (python agents/orchestrator.py) or as a module
@@ -223,8 +224,12 @@ async def run_pipeline(raw_report: str) -> dict:
     # ── Stage 4: Communication Hub ────────────────────────────────────────────
     _banner("STAGE 4 — COMMUNICATION HUB AGENT")
 
+    # Real timestamp (ISO 8601) injected as real data so the LLM does not invent one.
+    pipeline_timestamp = datetime.now().isoformat()
+
     comm_sections = [
         "Send all required communications for the disaster coordination result below.",
+        f"\n[REAL PIPELINE TIMESTAMP (USE THIS EXACT VALUE FOR OUTPUT timestamp)]\n{pipeline_timestamp}",
         "\n[INTAKE REPORT]\n" + intake_output,
         "\n[CRISIS ASSESSMENT]\n" + crisis_output,
     ]
