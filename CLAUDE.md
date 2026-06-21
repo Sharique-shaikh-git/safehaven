@@ -80,8 +80,8 @@
 
 | File | Status |
 |---|---|
-| `pii_redactor.py` | ❌ Not yet built |
-| `encryption.py` | ❌ Not yet built |
+| `pii_redactor.py` | ✅ Built + tested | `uv run python -m security.pii_redactor` passes |
+| `encryption.py` | ✅ Built + tested | `uv run python -m security.encryption` — 7/7 PASS |
 | `access_control.py` | ❌ Not yet built |
 | `audit_logger.py` | ❌ Not yet built |
 
@@ -89,9 +89,9 @@
 
 | File | Status |
 |---|---|
-| `geo_parser.py` | ❌ Not yet built |
-| `severity_scorer.py` | ❌ Not yet built |
-| `notification_sender.py` | ❌ Not yet built |
+| `geo_parser.py` | ✅ Built + tested | `uv run python -m skills.geo_parser` — all PASS |
+| `severity_scorer.py` | ✅ Built + tested | `uv run python -m skills.severity_scorer` — all PASS |
+| `notification_sender.py` | ✅ Built + tested | `uv run python -m skills.notification_sender` — all PASS |
 
 ### Dashboard (`dashboard/`)
 
