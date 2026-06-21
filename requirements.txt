@@ -1,0 +1,10 @@
+google-adk
+google-generativeai
+mcp
+streamlit
+folium
+streamlit-folium
+pandas
+pydantic
+requests
+python-dotenv

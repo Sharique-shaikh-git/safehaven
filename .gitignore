@@ -1,0 +1,45 @@
+# ── Secrets — NEVER commit these ──────────────────────────────────────────────
+.env
+
+# ── Virtual environment ────────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ── Python cache ───────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# ── Build / dist ───────────────────────────────────────────────────────────────
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+
+# ── Shared runtime state (append-only, written by agents at runtime) ──────────
+state/*.jsonl
+state/audit.jsonl
+
+# ── OS noise ──────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDE / editor ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Jupyter checkpoints ───────────────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ── Coverage / test artefacts ─────────────────────────────────────────────────
+.coverage
+htmlcov/
+.pytest_cache/
