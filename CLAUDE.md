@@ -8,21 +8,21 @@
 
 ## 🟢 CURRENT STATUS — Updated 2026-06-24
 
-**Last completed:** Dockerfile + .dockerignore built, CLAUDE.md updated, `git push` to main ✅
+**Last completed:** `README.md` — professional GitHub README with badges, Mermaid diagram, agent table, Docker instructions ✅
 
 ### What we're doing RIGHT NOW
-→ **Deploying to Render** (Step 2 of deployment guide)
+→ **Deploy to Render/HuggingFace** (Step 1 — create account)
 
 ### Deployment checklist (update this as each step completes)
 | Step | Task | Status |
 |---|---|---|
-| 1 | Create Render account | ⬜ Pending |
-| 2 | Add `render.yaml` to repo | ⬜ Pending — **NEXT ACTION** |
+| 1 | Create Render/HuggingFace account | ⬜ Pending — **NEXT ACTION** |
+| 2 | Add `render.yaml` to repo | ⬜ Pending |
 | 3 | Add env vars in Render dashboard | ⬜ Pending |
 | 4 | Connect GitHub repo to Render | ⬜ Pending |
 | 5 | Build succeeds → get live URL | ⬜ Pending |
 | 6 | Fix `config.js` for production (API_BASE = same origin) | ⬜ Pending |
-| 7 | Write `README.md` with live URL | ⬜ Pending |
+| 7 | Write `README.md` with live URL | ✅ Done (live URL placeholder — update after Step 5) |
 | 8 | Write `kaggle_notebook.ipynb` | ⬜ Pending |
 | 9 | Submit on Kaggle | ⬜ Pending |
 | 10 | Write Kaggle writeup (≤2500 words) | ⬜ Pending |
