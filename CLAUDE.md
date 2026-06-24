@@ -6,6 +6,44 @@
 
 ---
 
+## 🟢 CURRENT STATUS — Updated 2026-06-24
+
+**Last completed:** Dockerfile + .dockerignore built, CLAUDE.md updated, `git push` to main ✅
+
+### What we're doing RIGHT NOW
+→ **Deploying to Render** (Step 2 of deployment guide)
+
+### Deployment checklist (update this as each step completes)
+| Step | Task | Status |
+|---|---|---|
+| 1 | Create Render account | ⬜ Pending |
+| 2 | Add `render.yaml` to repo | ⬜ Pending — **NEXT ACTION** |
+| 3 | Add env vars in Render dashboard | ⬜ Pending |
+| 4 | Connect GitHub repo to Render | ⬜ Pending |
+| 5 | Build succeeds → get live URL | ⬜ Pending |
+| 6 | Fix `config.js` for production (API_BASE = same origin) | ⬜ Pending |
+| 7 | Write `README.md` with live URL | ⬜ Pending |
+| 8 | Write `kaggle_notebook.ipynb` | ⬜ Pending |
+| 9 | Submit on Kaggle | ⬜ Pending |
+| 10 | Write Kaggle writeup (≤2500 words) | ⬜ Pending |
+| 11 | Record YouTube video (5 min) | ⬜ Pending |
+
+### Dashboard build status (all ✅ — do NOT touch unless bug reported)
+| Component | Status |
+|---|---|
+| Backend FastAPI (`dashboard/api.py`) | ✅ 7 GET + POST — comms/audit bug fixed |
+| Frontend 12 components, 7 pages | ✅ |
+| Sidebar — Settings + Logout modals | ✅ |
+| TopBar — notification bell dropdown | ✅ |
+| Incident Map (direct Leaflet.js) | ✅ |
+| Communications page (`/api/communications`) | ✅ |
+| Audit Log page (`/api/audit`) | ✅ |
+| Dockerfile + .dockerignore | ✅ |
+| Git pushed to `main` | ✅ commit `093fd40` |
+
+---
+
+
 ## Project Overview
 
 **SafeHaven** — AI-powered disaster response coordination system.
