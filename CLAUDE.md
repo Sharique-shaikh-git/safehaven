@@ -29,7 +29,8 @@
 - `google-adk==2.3.0` — ADK agent framework
 - `google-generativeai==0.8.6` — Gemini model backend
 - `mcp==1.28.0` — MCP server protocol (**NOT FastMCP** — see locked decisions below)
-- `streamlit==1.58.0` — dashboard framework
+- `fastapi` — dashboard API backend
+- `uvicorn` — ASGI server for FastAPI
 - `python-dotenv==1.2.2` — loads `.env` automatically
 
 ---
@@ -95,10 +96,51 @@
 
 ### Dashboard (`dashboard/`)
 
-| File | Status |
+**Stack:** FastAPI (Python) backend + React (Vite) frontend — **Streamlit dropped**.
+
+| File | Status | Notes |
+|---|---|---|
+| `mock_data.py` | ✅ Built + tested | 12 shelters, 20 volunteers, supply inventory, agent status |
+| `api.py` | ✅ Built + tested | FastAPI — 7 GET endpoints + POST /api/incidents (real orchestrator) |
+| `frontend/` | ✅ Built + tested | Vite 5 + React 18 — 12 components, light-mode, Leaflet map, 7 pages |
+
+#### Frontend component inventory (`dashboard/frontend/src/`)
+
+| Component | Purpose |
 |---|---|
-| `mock_data.py` | ❌ Not yet built |
-| `app.py` | ❌ Not yet built |
+| `App.jsx` | Root — sidebar navigation, page routing, footer |
+| `components/Sidebar.jsx` | Blue sidebar (`#1B4FDC`) — 7 nav pages, logo, **Settings modal** (API status, masked keys, system info), **Logout confirmation modal** |
+| `components/TopBar.jsx` | Light top bar — date/time, connection status, **notification bell dropdown** (shows last 5 incidents, closes on outside click) |
+| `components/IncidentMap.jsx` | **Interactive Leaflet map** (direct Leaflet.js, no react-leaflet) — incident pins colored by severity, shelter circles, popups, filter strip, legend, quick-info panel |
+| `components/AgentStatus.jsx` | 5 agent status cards — colored icons, processing shimmer bar, live polling |
+| `components/SubmitIncident.jsx` | Report textarea, example buttons, live pipeline step tracker, collapsible agent outputs |
+| `components/IncidentTable.jsx` | Sortable incident table with severity badges, empty state |
+| `components/ShelterCapacity.jsx` | Overall utilization bar + per-shelter progress bars |
+| `components/SupplyLevels.jsx` | 2×3 supply grid with count-up animation on load |
+| `components/VolunteerRoster.jsx` | Status summary grid (Available/On Site/En Route/Unavailable) + skill-tagged list |
+| `components/CommunicationsPage.jsx` | **New** — wired to `/api/communications` — expandable cards per message, channel filter, stats row, sent indicators |
+| `components/AuditLog.jsx` | **New** — wired to `/api/audit` — full audit trail table with action icons, actor, details, role badge |
+
+#### Frontend npm dependencies added
+- `react-leaflet` + `leaflet` — installed with `--legacy-peer-deps`
+
+#### Pages / navigation
+| Page key | Title | Content |
+|---|---|---|
+| `dashboard` | Command Center | Agent status + Submit form + Incident table |
+| `map` | Incident Map | Full Leaflet map (direct Leaflet.js) |
+| `incidents` | Incident Management | Submit form + full table |
+| `resources` | Resource Monitor | Shelter capacity + Supply levels |
+| `volunteers` | Volunteer Roster | VolunteerRoster full page |
+| `comms` | Communications Hub | CommunicationsPage — real data from `/api/communications` |
+| `audit` | Audit Log | AuditLog — real data from `/api/audit` |
+
+#### Design system (`src/index.css`)
+- **Theme:** Light mode — white `#FFFFFF` cards, `#F4F6FB` background, blue `#1B4FDC` sidebar
+- **Typography:** Inter (UI) + JetBrains Mono (numbers/time/IDs) from Google Fonts
+- **Leaflet CSS:** Imported directly in `index.css` via `@import 'leaflet/dist/leaflet.css'`
+- **Animations:** `fadeUp`, `fadeIn`, `shimmer`, `dotPulse`, `spin`
+- **No dark mode, no glassmorphism** — clean professional light UI matching reference design
 
 ---
 
@@ -107,7 +149,7 @@
 1. **`orchestrator.py` — `__main__` path issue (FIXED)**
    Running `python agents/orchestrator.py` directly broke absolute imports.
    Fix applied: `sys.path.insert(0, project_root)` at top of orchestrator before any imports.
-   Now works both ways: `python agents/orchestrator.py` AND `python -m agents.orchestrator`.
+   Now works both ways: `python agents/orchestrator.py` AND `python -m agents.orchestrator`
 
 2. **`google-adk` not in global Python (FIXED)**
    `google-adk` was not pre-installed. Now installed both globally (for ad-hoc testing)
@@ -121,35 +163,47 @@
    PID originally said FastMCP. User corrected: use the official `mcp` package.
    All future MCP server code must use `import mcp` / `mcp.server` patterns.
 
+5. **`react-leaflet` peer dep conflict + React 18 incompatibility (FIXED)**
+   `react-leaflet` throws `render2 is not a function` with React 18. Replaced entirely
+   with direct Leaflet.js using `useRef`/`useEffect` — no wrapper library needed.
+   Leaflet CSS must be imported inside the component file, NOT in `index.css`.
+
+6. **Notification bell was non-functional (FIXED)**
+   Added dropdown panel to TopBar — shows last 5 incidents with severity badges,
+   timestamps, 2-line preview. Closes on outside click via `mousedown` listener.
+
+7. **Settings and Logout buttons were dead (FIXED)**
+   Settings → modal with API connection status, masked API keys, system info.
+   Logout → confirmation modal with sign-out screen.
+
+8. **`/api/communications` TypeError (FIXED)**
+   The `communications` field in incident data can be a raw string or a list of dicts.
+   Endpoint now handles both safely with isinstance() checks before unpacking.
+
+9. **CORS only covered port 5173 (FIXED)**
+   Vite falls back to 5174/5175/5176 if 5173 is busy. Added all four ports to allow_origins.
+
 ---
 
-## Next File to Build (PID.md Section 14 — Wave 1 Foundation)
+## How to Run
 
-Per the build order, the foundation files come before more agents or MCP servers.
-
-**Build next (in this order):**
-
-1. ~~`security/pii_redactor.py`~~ ✅ built + tested
-2. ~~`security/encryption.py`~~ ✅ built + tested
-3. ~~`skills/geo_parser.py`~~ ✅ built + tested
-4. ~~`skills/severity_scorer.py`~~ ✅ built + tested
-5. ~~`mcp_servers/geocoding_mcp/server.py`~~ ✅ built + tested
-6. ~~`mcp_servers/weather_mcp/server.py`~~ ✅ built + tested (built out of wave order per user request)
-7. ~~`mcp_servers/supply_db_mcp/server.py`~~ ✅ built + tested
-8. ~~`mcp_servers/shelter_api_mcp/server.py`~~ ✅ built + tested
-
-> **Do not** jump to dashboard or orchestrator wiring until the
-> remaining MCP servers are in place. Follow the wave order strictly.
-
----
-
-## How to Run the Pipeline (once GEMINI_API_KEY is set in .env)
-
+### Backend API
 ```powershell
 # From safehaven/ — activate venv first
 .venv\Scripts\activate
+uvicorn dashboard.api:app --reload --port 8000
+```
 
-# End-to-end pipeline test
+### Frontend Dev Server
+```powershell
+cd dashboard/frontend
+npm run dev
+# Opens at http://localhost:5173
+```
+
+### End-to-End Pipeline Test (no dashboard)
+```powershell
+.venv\Scripts\activate
 python -m agents.orchestrator
 ```
 
@@ -162,6 +216,8 @@ safehaven/
 ├── .env                    ← gitignored, has real keys
 ├── .env.example            ← committed, placeholders only
 ├── .gitignore              ✅
+├── .dockerignore           ✅ NEW
+├── Dockerfile              ✅ NEW — multi-stage (Node 20 → Python 3.13 slim)
 ├── .venv/                  ← uv virtualenv, gitignored
 ├── CLAUDE.md               ← this file, update after every tested file
 ├── PID.md                  ← full spec, read this first
@@ -181,6 +237,55 @@ safehaven/
 │   └── shelter_api_mcp/    ✅ server.py built
 ├── security/               ✅ all 4 modules built
 ├── skills/                 ✅ all 3 modules built
-├── dashboard/              ❌ mock_data.py + app.py missing
-└── state/                  ❌ folder missing (created at runtime)
+├── dashboard/
+│   ├── __init__.py
+│   ├── api.py               ✅ FastAPI — 7 GET + POST, static file serving for production
+│   ├── mock_data.py         ✅ seed data (12 shelters, 20 volunteers, supplies, agents)
+│   └── frontend/            ✅ Vite 5 + React 18 — 12 components, 7 pages, light-mode
+│       ├── src/
+│       │   ├── index.css        ← full design system (light mode)
+│       │   ├── App.jsx          ← sidebar routing shell (7 pages)
+│       │   └── components/
+│       │       ├── Sidebar.jsx          ← Settings + Logout modals
+│       │       ├── TopBar.jsx           ← bell dropdown
+│       │       ├── IncidentMap.jsx      ← direct Leaflet.js map
+│       │       ├── AgentStatus.jsx
+│       │       ├── SubmitIncident.jsx
+│       │       ├── IncidentTable.jsx
+│       │       ├── ShelterCapacity.jsx
+│       │       ├── SupplyLevels.jsx
+│       │       ├── VolunteerRoster.jsx
+│       │       ├── CommunicationsPage.jsx  ← NEW
+│       │       └── AuditLog.jsx            ← NEW
+│       └── package.json     ← includes leaflet (direct, no react-leaflet)
+└── state/                  ← created at runtime (incidents.jsonl, audit.jsonl)
 ```
+
+---
+
+## What's Left (before Kaggle submission)
+
+### Must-Have (competition requirements)
+| Item | Status | Notes |
+|---|---|---|
+| `Dockerfile` | ✅ Built | Multi-stage Node 20 → Python 3.13 slim |
+| `.dockerignore` | ✅ Built | Excludes venv, node_modules, .env, state/ |
+| `README.md` | ❌ Not built | Documentation score — needs arch diagram, setup, deployed URL |
+| `kaggle_notebook.ipynb` | ❌ Not built | Required for submission — end-to-end pipeline demo |
+| Deploy to Render/Railway | ❌ Not done | Needed for deployed URL in README + video |
+| YouTube video (5 min) | ❌ Not recorded | "The Pitch" = 10 pts |
+| Kaggle writeup | ❌ Not written | Max 2500 words |
+
+### Nice-to-Have (dashboard polish)
+| Item | Status | Notes |
+|---|---|---|
+| Communications page | ✅ Done | Wired to `/api/communications` — expandable cards |
+| Audit Log page | ✅ Done | Wired to `/api/audit` — full table |
+| Map with real geocoordinates | ⚠️ Partial | Incidents use stable random offsets; real lat/lon requires Geocoding MCP wiring |
+
+### Build priority order
+1. Deploy to Render (get the live URL) ← **Next**
+2. `README.md` — documentation score  
+3. `kaggle_notebook.ipynb` — submission artifact  
+4. Record YouTube video  
+5. Write Kaggle writeup + submit

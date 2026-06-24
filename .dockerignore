@@ -1,0 +1,42 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Node / frontend (source — only the built dist/ is copied)
+dashboard/frontend/node_modules/
+dashboard/frontend/.vite/
+
+# Environment / secrets — NEVER bake into the image
+.env
+*.env
+
+# State files (mounted as volume at runtime, not baked in)
+state/
+
+# Git
+.git/
+.gitignore
+
+# IDE / OS
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# Docs / non-runtime
+docs/
+*.md
+CLAUDE.md
+PID.md
+
+# Test artifacts
+*.log
+*.tmp
