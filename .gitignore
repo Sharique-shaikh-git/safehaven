@@ -43,3 +43,7 @@ Thumbs.db
 .coverage
 htmlcov/
 .pytest_cache/
+
+# ── Node / npm ─────────────────────────────────────────────────────────────────
+node_modules/
+package-lock.json

@@ -3,7 +3,10 @@
   "private": true,
   "scripts": {
     "dev": "cd dashboard\\frontend && npm run dev",
-    "dev:backend": ".venv\\Scripts\\uvicorn.exe dashboard.api:app --host 127.0.0.1 --port 8000",
-    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev\""
+    "dev:backend": ".venv\\Scripts\\uvicorn.exe dashboard.api:app --reload --host 127.0.0.1 --port 8000",
+    "dev:all": "concurrently --names \"API,UI\" --prefix-colors \"blue,green\" \".venv\\\\Scripts\\\\uvicorn.exe dashboard.api:app --reload --host 127.0.0.1 --port 8000\" \"npm run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
   }
 }
